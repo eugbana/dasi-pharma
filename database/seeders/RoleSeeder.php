@@ -9,12 +9,13 @@ class RoleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
-     * Seeds the four main system roles:
+     *
+     * Seeds the five main system roles:
      * - Super Admin: Full system access
      * - Pharmacist: Can approve controlled substances and prescriptions
      * - Store Manager: Can manage inventory and approve transfers
      * - Sales Staff: Can process sales and view inventory
+     * - Cashier: Can process sales and handle POS operations
      */
     public function run(): void
     {
@@ -35,10 +36,17 @@ class RoleSeeder extends Seeder
                 'name' => 'Sales Staff',
                 'description' => 'Can process sales, view inventory, and handle customer transactions',
             ],
+            [
+                'name' => 'Cashier',
+                'description' => 'Can process sales and handle POS operations',
+            ],
         ];
 
         foreach ($roles as $role) {
-            Role::create($role);
+            Role::updateOrCreate(
+                ['name' => $role['name']],
+                $role
+            );
         }
     }
 }

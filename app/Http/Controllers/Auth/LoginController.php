@@ -14,8 +14,14 @@ class LoginController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        // Ensure session is started and CSRF token is available
+        // This fixes 419 errors on first visit after redirect
+        if (!$request->session()->has('_token')) {
+            $request->session()->regenerateToken();
+        }
+
         return Inertia::render('Auth/Login');
     }
 

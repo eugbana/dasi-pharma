@@ -11,7 +11,7 @@
                 type="text"
                 :placeholder="placeholder"
                 :required="required"
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-10"
+                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-10"
                 :class="{ 'border-red-500': error }"
                 @input="handleInput"
                 @keydown.enter="handleEnter"

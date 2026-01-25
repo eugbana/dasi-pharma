@@ -39,15 +39,13 @@ return new class extends Migration
             $table->index('expiry_date'); // Daily expiry check jobs
         });
 
-        // Check constraints (MySQL/PostgreSQL only)
-        if (in_array(config('database.default'), ['mysql', 'pgsql'])) {
-            Schema::table('stock_items', function (Blueprint $table) {
-                // Check constraint: quantity cannot be negative
-                $table->check('quantity_available >= 0', 'check_quantity_non_negative');
-
-                // Check constraint: expiry after manufacturing
-                $table->check('expiry_date > manufacturing_date', 'check_expiry_after_manufacturing');
-            });
+        // Check constraints using raw SQL (MySQL 8.0.16+ / PostgreSQL)
+        if (config('database.default') === 'mysql') {
+            \DB::statement('ALTER TABLE stock_items ADD CONSTRAINT check_quantity_non_negative CHECK (quantity_available >= 0)');
+            \DB::statement('ALTER TABLE stock_items ADD CONSTRAINT check_expiry_after_manufacturing CHECK (expiry_date > manufacturing_date OR manufacturing_date IS NULL)');
+        } elseif (config('database.default') === 'pgsql') {
+            \DB::statement('ALTER TABLE stock_items ADD CONSTRAINT check_quantity_non_negative CHECK (quantity_available >= 0)');
+            \DB::statement('ALTER TABLE stock_items ADD CONSTRAINT check_expiry_after_manufacturing CHECK (expiry_date > manufacturing_date OR manufacturing_date IS NULL)');
         }
     }
 

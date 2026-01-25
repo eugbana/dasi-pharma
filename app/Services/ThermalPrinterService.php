@@ -57,73 +57,60 @@ class ThermalPrinterService
         $lines = [];
         $width = $this->paperWidth === 80 ? 48 : 32;
 
-        // Header
+        // Header - compact
         $lines[] = $this->center('DASI PHARMA', $width);
         $lines[] = $this->center($sale->branch->name ?? 'Main Branch', $width);
         if ($sale->branch?->address) {
             $lines[] = $this->center($sale->branch->address, $width);
         }
-        $lines[] = str_repeat('=', $width);
+        $lines[] = str_repeat('-', $width);
 
-        // Transaction info
-        $lines[] = "Date: " . $sale->created_at->format('d/m/Y') . 
-                   str_repeat(' ', $width - 28) . 
-                   "Time: " . $sale->created_at->format('H:i');
-        $lines[] = "Receipt #: " . $sale->invoice_number;
+        // Transaction info - single line for date/time
+        $lines[] = $sale->created_at->format('d/m/Y H:i') . str_repeat(' ', $width - strlen($sale->created_at->format('d/m/Y H:i')) - strlen($sale->invoice_number)) . $sale->invoice_number;
         $lines[] = "Cashier: " . ($sale->user->name ?? 'Unknown');
         $lines[] = str_repeat('-', $width);
 
-        // Items
+        // Items - compact format with product name and barcode
         foreach ($sale->items as $item) {
-            $drugName = $item->stockItem?->drug?->brand_name ?? 'Unknown Item';
-            $drugName = substr($drugName, 0, $width - 15);
-            $lines[] = $drugName;
-            
-            $qtyPrice = sprintf("  %d x %.2f", $item->quantity, $item->unit_price);
-            $total = sprintf("%.2f", $item->total_price);
-            $lines[] = $qtyPrice . str_repeat(' ', $width - strlen($qtyPrice) - strlen($total)) . $total;
-        }
+            $drug = $item->stockItem?->drug;
+            $drugName = $drug?->brand_name ?? 'Unknown Item';
+            $barcode = $drug?->barcode ?? '';
 
+            // Product name (truncated if needed)
+            $lines[] = substr($drugName, 0, $width);
+
+            // Barcode and quantity x price = total on same line
+            $barcodePrefix = $barcode ? "[{$barcode}] " : '';
+            $qtyPrice = sprintf("%d x %.2f", $item->quantity, $item->unit_price);
+            $total = sprintf("%.2f", $item->total_price);
+            $itemDetail = $barcodePrefix . $qtyPrice;
+            $lines[] = $itemDetail . str_repeat(' ', max(1, $width - strlen($itemDetail) - strlen($total))) . $total;
+        }
         $lines[] = str_repeat('-', $width);
 
-        // Totals
+        // Totals - compact
         $lines[] = $this->formatLine('Subtotal:', number_format($sale->subtotal, 2), $width);
-        
         if ($sale->discount_amount > 0) {
             $lines[] = $this->formatLine('Discount:', '-' . number_format($sale->discount_amount, 2), $width);
         }
-        
         if ($sale->tax_amount > 0) {
             $lines[] = $this->formatLine('VAT (16%):', number_format($sale->tax_amount, 2), $width);
         }
-
-        $lines[] = str_repeat('=', $width);
         $lines[] = $this->formatLine('TOTAL:', number_format($sale->total_amount, 2), $width);
-        $lines[] = str_repeat('=', $width);
 
         // Payment info
         $lines[] = $this->formatLine('Payment:', ucfirst($sale->payment_method), $width);
-        
         if ($sale->amount_tendered > 0) {
             $lines[] = $this->formatLine('Tendered:', number_format($sale->amount_tendered, 2), $width);
             $lines[] = $this->formatLine('Change:', number_format($sale->change_amount, 2), $width);
         }
-
         $lines[] = str_repeat('-', $width);
 
-        // Footer
-        $lines[] = '';
+        // Footer - compact
         $lines[] = $this->center('Thank you for your purchase!', $width);
-        
         if ($sale->user?->pharmacist_registration) {
-            $lines[] = $this->center("Pharmacist: " . $sale->user->name, $width);
-            $lines[] = $this->center("Reg: " . $sale->user->pharmacist_registration, $width);
+            $lines[] = $this->center("Pharmacist: " . $sale->user->name . " [" . $sale->user->pharmacist_registration . "]", $width);
         }
-
-        $lines[] = str_repeat('=', $width);
-        $lines[] = '';
-        $lines[] = '';
-        $lines[] = '';
 
         return implode(self::LF, $lines) . self::CUT;
     }

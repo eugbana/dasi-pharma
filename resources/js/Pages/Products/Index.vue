@@ -26,26 +26,29 @@
                 <div class="bg-white rounded-lg shadow p-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                             <input v-model="filters.search" type="text" placeholder="Search products..."
-                                class="w-full rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-lg border-gray-400 focus:border-primary-500 focus:ring-primary-500"
                                 @input="debouncedSearch" />
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                             <select v-model="filters.category_id" @change="applyFilters"
-                                class="w-full rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500">
+                                class="w-full rounded-lg border-gray-400 focus:border-primary-500 focus:ring-primary-500">
                                 <option value="">All Categories</option>
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                             </select>
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Prescription Type</label>
                             <select v-model="filters.prescription_only" @change="applyFilters"
-                                class="w-full rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500">
+                                class="w-full rounded-lg border-gray-400 focus:border-primary-500 focus:ring-primary-500">
                                 <option value="">All Products</option>
                                 <option value="yes">Prescription Only</option>
                                 <option value="no">Over the Counter</option>
                             </select>
                         </div>
-                        <div>
+                        <div class="flex items-end">
                             <button @click="clearFilters" class="btn btn-secondary w-full">Clear Filters</button>
                         </div>
                     </div>

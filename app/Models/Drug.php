@@ -24,7 +24,6 @@ class Drug extends Model
         'strength',
         'dosage_form',
         'manufacturer',
-        'nafdac_number',
         'barcode',
         'category_id',
         'subcategory_id',

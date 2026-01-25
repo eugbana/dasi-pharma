@@ -37,7 +37,7 @@
                         v-model="form.name"
                         type="text"
                         required
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         :class="{ 'border-red-500': form.errors.name }"
                     />
                     <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
@@ -51,7 +51,7 @@
                     <textarea
                         v-model="form.description"
                         rows="3"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         :class="{ 'border-red-500': form.errors.description }"
                     ></textarea>
                     <p v-if="form.errors.description" class="mt-1 text-sm text-red-600">{{ form.errors.description }}</p>

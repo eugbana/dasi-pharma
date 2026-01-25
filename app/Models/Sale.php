@@ -29,6 +29,7 @@ class Sale extends Model
         'subtotal',
         'tax_amount',
         'discount_amount',
+        'discount_authorized_by',
         'total_amount',
         'customer_name',
         'customer_phone',
@@ -67,6 +68,14 @@ class Sale extends Model
     public function pharmacist(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_pharmacist');
+    }
+
+    /**
+     * Get the user who authorized the discount for this sale.
+     */
+    public function discountAuthorizer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'discount_authorized_by');
     }
 
     /**

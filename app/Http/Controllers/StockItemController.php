@@ -134,6 +134,8 @@ class StockItemController extends Controller
 
         $validated['branch_id'] = $request->user()->branch_id;
         $validated['vat_applicable'] = $request->boolean('vat_applicable');
+        $validated['minimum_stock_level'] = $validated['minimum_stock_level'] ?? 0;
+        $validated['reorder_point'] = $validated['reorder_point'] ?? 0;
 
         $stockItem = StockItem::create($validated);
 

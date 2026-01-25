@@ -15,6 +15,9 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Dashboard Module
+            ['name' => 'dashboard.view', 'description' => 'Access dashboard', 'module' => 'dashboard'],
+
             // Inventory Module
             ['name' => 'inventory.view', 'description' => 'View inventory and stock levels', 'module' => 'inventory'],
             ['name' => 'inventory.manage', 'description' => 'Add, edit, and delete inventory items', 'module' => 'inventory'],
@@ -72,7 +75,10 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create($permission);
+            Permission::updateOrCreate(
+                ['name' => $permission['name']],
+                $permission
+            );
         }
     }
 }

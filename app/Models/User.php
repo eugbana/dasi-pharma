@@ -112,7 +112,57 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permissionName): bool
     {
-        return $this->role->hasPermission($permissionName);
+        // Super Admin has all permissions
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // Check if role has the permission
+        return $this->role?->hasPermission($permissionName) ?? false;
+    }
+
+    /**
+     * Check if user has ANY of the specified permissions (OR logic).
+     *
+     * @param  array  $permissions  Array of permission names
+     * @return bool
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        // Super Admin has all permissions
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has ALL of the specified permissions (AND logic).
+     *
+     * @param  array  $permissions  Array of permission names
+     * @return bool
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        // Super Admin has all permissions
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if (!$this->hasPermission($permission)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -120,7 +170,7 @@ class User extends Authenticatable
      */
     public function hasRole(string $roleName): bool
     {
-        return $this->role->name === $roleName;
+        return $this->role?->name === $roleName;
     }
 
     /**
@@ -128,7 +178,7 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole('Super Admin');
+        return $this->role?->name === 'Super Admin';
     }
 
     /**

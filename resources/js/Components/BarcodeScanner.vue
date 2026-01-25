@@ -19,7 +19,7 @@
                 @keyup.enter="handleManualScan"
                 type="text"
                 placeholder="Or enter barcode manually..."
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             />
         </div>
 

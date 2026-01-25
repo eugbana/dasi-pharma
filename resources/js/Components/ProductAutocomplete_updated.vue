@@ -6,7 +6,7 @@
                 v-model="searchQuery"
                 type="text"
                 :placeholder="placeholder"
-                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-10"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-10"
                 @input="handleInput"
                 @focus="showDropdown = true"
                 @keydown.down.prevent="navigateDown"

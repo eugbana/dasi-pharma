@@ -38,7 +38,7 @@ class BranchController extends Controller
         $branches = $query->orderBy('name')->paginate(15)->withQueryString();
 
         return Inertia::render('Admin/Branches/Index', [
-            'branches' => $branches,
+            'branchesList' => $branches,
             'filters' => $request->only(['search', 'status']),
         ]);
     }
@@ -49,7 +49,7 @@ class BranchController extends Controller
     public function create(): Response
     {
         $managers = User::whereHas('role', function ($q) {
-            $q->whereIn('slug', ['admin', 'branch_manager', 'pharmacist']);
+            $q->whereIn('name', ['Super Admin', 'Store Manager', 'Pharmacist']);
         })->get(['id', 'name', 'email']);
 
         return Inertia::render('Admin/Branches/Create', [
@@ -95,7 +95,7 @@ class BranchController extends Controller
                 SUM(quantity_available) as total_quantity,
                 SUM(quantity_available * purchase_price) as stock_value,
                 COUNT(CASE WHEN quantity_available <= minimum_stock_level THEN 1 END) as low_stock_count,
-                COUNT(CASE WHEN expiry_date <= DATE("now", "+30 days") THEN 1 END) as expiring_soon
+                COUNT(CASE WHEN expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 1 END) as expiring_soon
             ')
             ->first();
 
@@ -157,6 +157,27 @@ class BranchController extends Controller
 
         return redirect()->route('admin.branches.index')
             ->with('success', 'Branch deleted successfully.');
+    }
+
+    /**
+     * Set the selected branch in session for filtering.
+     */
+    public function setSelectedBranch(Request $request)
+    {
+        $branchId = $request->input('branch_id');
+
+        if ($branchId) {
+            // Validate that the branch exists
+            $branch = Branch::find($branchId);
+            if ($branch) {
+                session(['selected_branch_id' => (int) $branchId]);
+            }
+        } else {
+            // Clear the selection (All Branches)
+            session()->forget('selected_branch_id');
+        }
+
+        return response()->json(['success' => true, 'selected_branch_id' => session('selected_branch_id')]);
     }
 }
 

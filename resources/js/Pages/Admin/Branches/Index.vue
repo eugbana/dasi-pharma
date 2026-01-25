@@ -6,7 +6,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Branches</h1>
                 <p class="mt-1 text-sm text-gray-500">Manage pharmacy branch locations</p>
             </div>
-            <Button @click="$inertia.visit(route('admin.branches.create'))">
+            <Button @click="router.visit(route('admin.branches.create'))">
                 <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -53,7 +53,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="branch in branches.data" :key="branch.id" class="hover:bg-gray-50">
+                    <tr v-for="branch in branchesList.data" :key="branch.id" class="hover:bg-gray-50">
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900">{{ branch.name }}</div>
                             <div class="text-sm text-gray-500">{{ branch.address }}</div>
@@ -71,28 +71,28 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
-                            <button @click="$inertia.visit(route('admin.branches.show', branch.id))" class="text-primary-600 hover:text-primary-900">View</button>
-                            <button @click="$inertia.visit(route('admin.branches.edit', branch.id))" class="text-gray-600 hover:text-gray-900">Edit</button>
+                            <button @click="router.visit(route('admin.branches.show', branch.id))" class="text-primary-600 hover:text-primary-900">View</button>
+                            <button @click="router.visit(route('admin.branches.edit', branch.id))" class="text-gray-600 hover:text-gray-900">Edit</button>
                             <button @click="confirmDelete(branch)" class="text-red-600 hover:text-red-900">Delete</button>
                         </td>
                     </tr>
-                    <tr v-if="branches.data.length === 0">
+                    <tr v-if="branchesList.data.length === 0">
                         <td colspan="7" class="px-6 py-12 text-center text-gray-500">No branches found.</td>
                     </tr>
                 </tbody>
             </table>
 
             <!-- Pagination -->
-            <div v-if="branches.links && branches.links.length > 3" class="px-6 py-4 border-t border-gray-200">
+            <div v-if="branchesList.links && branchesList.links.length > 3" class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing {{ branches.from }} to {{ branches.to }} of {{ branches.total }} branches
+                        Showing {{ branchesList.from }} to {{ branchesList.to }} of {{ branchesList.total }} branches
                     </div>
                     <div class="flex space-x-1">
-                        <template v-for="link in branches.links" :key="link.label">
+                        <template v-for="link in branchesList.links" :key="link.label">
                             <button
                                 v-if="link.url"
-                                @click="$inertia.visit(link.url)"
+                                @click="router.visit(link.url)"
                                 :class="link.active ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                                 class="px-3 py-1 text-sm border rounded"
                                 v-html="link.label"
@@ -129,7 +129,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Button from '@/Components/Button.vue';
 
 const props = defineProps({
-    branches: Object,
+    branchesList: Object,
     filters: Object,
 });
 

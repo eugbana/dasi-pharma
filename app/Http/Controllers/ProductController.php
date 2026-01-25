@@ -320,4 +320,123 @@ class ProductController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Update an existing category.
+     */
+    public function updateCategory(Request $request, Category $category)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $category->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category updated successfully',
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'description' => $category->description,
+                'subcategories' => $category->subcategories()->active()->ordered()->get(),
+            ],
+        ]);
+    }
+
+    /**
+     * Delete a category.
+     */
+    public function deleteCategory(Category $category)
+    {
+        // Check if category has associated drugs
+        $drugCount = $category->drugs()->count();
+
+        if ($drugCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot delete category. It has {$drugCount} associated product(s). Please reassign or delete the products first.",
+            ], 422);
+        }
+
+        // Check if category has subcategories
+        $subcategoryCount = $category->subcategories()->count();
+
+        if ($subcategoryCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot delete category. It has {$subcategoryCount} subcategory(ies). Please delete the subcategories first.",
+            ], 422);
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully',
+        ]);
+    }
+
+    /**
+     * Update an existing subcategory.
+     */
+    public function updateSubcategory(Request $request, Subcategory $subcategory)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        // Check for duplicate within category (excluding current subcategory)
+        $exists = Subcategory::where('category_id', $subcategory->category_id)
+            ->where('name', $validated['name'])
+            ->where('id', '!=', $subcategory->id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A subcategory with this name already exists in this category',
+            ], 422);
+        }
+
+        $subcategory->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subcategory updated successfully',
+            'subcategory' => [
+                'id' => $subcategory->id,
+                'name' => $subcategory->name,
+                'slug' => $subcategory->slug,
+                'description' => $subcategory->description,
+                'category_id' => $subcategory->category_id,
+            ],
+        ]);
+    }
+
+    /**
+     * Delete a subcategory.
+     */
+    public function deleteSubcategory(Subcategory $subcategory)
+    {
+        // Check if subcategory has associated drugs
+        $drugCount = $subcategory->drugs()->count();
+
+        if ($drugCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot delete subcategory. It has {$drugCount} associated product(s). Please reassign or delete the products first.",
+            ], 422);
+        }
+
+        $subcategory->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subcategory deleted successfully',
+        ]);
+    }
 }

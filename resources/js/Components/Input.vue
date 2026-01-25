@@ -20,7 +20,7 @@
                 :step="step"
                 class="block w-full px-4 py-2.5 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 :class="[
-                    error ? 'border-danger-500' : 'border-gray-300',
+                    error ? 'border-danger-500' : 'border-gray-400',
                     icon ? 'pl-10' : ''
                 ]"
             />

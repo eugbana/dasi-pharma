@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('👥 Users created: 7');
         $this->command->info('💊 Drugs created: 15');
         $this->command->info('🏭 Suppliers created: 8');
-        $this->command->info('🔐 Roles created: 4');
-        $this->command->info('🔑 Permissions created: 31');
+        $this->command->info('🔐 Roles created: 5 (Super Admin, Pharmacist, Store Manager, Sales Staff, Cashier)');
+        $this->command->info('🔑 Permissions created: 32 (including dashboard.view)');
     }
 }

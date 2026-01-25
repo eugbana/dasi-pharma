@@ -20,21 +20,21 @@
 
         <!-- Filters -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <input
                         v-model="filters.search"
                         type="text"
                         placeholder="Sale #, customer, phone..."
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     />
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
                         v-model="filters.status"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     >
                         <option value="">All Statuses</option>
                         <option v-for="(label, value) in statuses" :key="value" :value="value">
@@ -43,11 +43,23 @@
                     </select>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                    <select
+                        v-model="filters.user_id"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    >
+                        <option value="">All Users</option>
+                        <option v-for="user in users" :key="user.id" :value="user.id">
+                            {{ user.name }}
+                        </option>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
                     <input
                         v-model="filters.date_from"
                         type="date"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     />
                 </div>
                 <div>
@@ -55,7 +67,7 @@
                     <input
                         v-model="filters.date_to"
                         type="date"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     />
                 </div>
             </div>
@@ -193,11 +205,13 @@ const props = defineProps({
     sales: Object,
     filters: Object,
     statuses: Object,
+    users: Array,
 });
 
 const filters = reactive({
     search: props.filters?.search || '',
     status: props.filters?.status || '',
+    user_id: props.filters?.user_id || '',
     date_from: props.filters?.date_from || '',
     date_to: props.filters?.date_to || '',
 });
@@ -212,6 +226,7 @@ const applyFilters = () => {
 const clearFilters = () => {
     filters.search = '';
     filters.status = '';
+    filters.user_id = '';
     filters.date_from = '';
     filters.date_to = '';
     applyFilters();

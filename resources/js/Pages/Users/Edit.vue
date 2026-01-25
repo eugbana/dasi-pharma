@@ -20,7 +20,7 @@
                         v-model="form.name"
                         type="text"
                         required
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         :class="{ 'border-red-500': form.errors.name }"
                     />
                     <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
@@ -35,7 +35,7 @@
                         v-model="form.email"
                         type="email"
                         required
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         :class="{ 'border-red-500': form.errors.email }"
                     />
                     <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
@@ -50,7 +50,7 @@
                         <input
                             v-model="form.password"
                             type="password"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.password }"
                         />
                         <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">{{ form.errors.password }}</p>
@@ -62,7 +62,7 @@
                         <input
                             v-model="form.password_confirmation"
                             type="password"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         />
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                         <select
                             v-model="form.role_id"
                             required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.role_id }"
                         >
                             <option value="">Select Role</option>
@@ -96,7 +96,7 @@
                         <select
                             v-model="form.branch_id"
                             required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.branch_id }"
                         >
                             <option value="">Select Branch</option>
@@ -114,7 +114,7 @@
                         v-model="form.is_active"
                         type="checkbox"
                         id="is_active"
-                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-400 rounded"
                     />
                     <label for="is_active" class="ml-2 block text-sm text-gray-900">
                         Active (user can log in)
@@ -138,7 +138,7 @@
                             v-model="form.can_authorize"
                             type="checkbox"
                             id="can_authorize"
-                            class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                            class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-400 rounded"
                         />
                         <label for="can_authorize" class="ml-2 block text-sm text-amber-900">
                             Can authorize sensitive operations

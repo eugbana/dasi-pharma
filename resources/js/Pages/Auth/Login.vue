@@ -32,7 +32,7 @@
                             type="email"
                             required
                             autocomplete="email"
-                            class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                            class="appearance-none block w-full px-4 py-3 border border-gray-400 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                             :class="{ 'border-red-500': form.errors.email }"
                             placeholder="you@example.com"
                         />
@@ -52,7 +52,7 @@
                             type="password"
                             required
                             autocomplete="current-password"
-                            class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                            class="appearance-none block w-full px-4 py-3 border border-gray-400 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                             :class="{ 'border-red-500': form.errors.password }"
                             placeholder="••••••••"
                         />
@@ -67,7 +67,7 @@
                             id="remember"
                             v-model="form.remember"
                             type="checkbox"
-                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-400 rounded"
                         />
                         <label for="remember" class="ml-2 block text-sm text-gray-700">
                             Remember me

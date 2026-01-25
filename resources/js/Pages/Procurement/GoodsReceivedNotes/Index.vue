@@ -27,7 +27,7 @@
                         v-model="localFilters.search"
                         type="text"
                         placeholder="GRN number or PO number..."
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         @input="applyFilters"
                     />
                 </div>
@@ -36,7 +36,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
                         v-model="localFilters.status"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         @change="applyFilters"
                     >
                         <option value="">All Statuses</option>

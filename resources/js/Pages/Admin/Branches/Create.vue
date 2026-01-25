@@ -22,7 +22,7 @@
                             <input
                                 v-model="form.name"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.name }"
                                 placeholder="e.g., Main Branch"
                             />
@@ -36,7 +36,7 @@
                             <input
                                 v-model="form.code"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 uppercase"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500 uppercase"
                                 :class="{ 'border-red-500': form.errors.code }"
                                 placeholder="e.g., MAIN"
                                 maxlength="20"
@@ -54,7 +54,7 @@
                         <textarea
                             v-model="form.address"
                             rows="3"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.address }"
                             placeholder="Full branch address"
                         ></textarea>
@@ -68,7 +68,7 @@
                             <input
                                 v-model="form.phone"
                                 type="tel"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.phone }"
                                 placeholder="e.g., +234 800 000 0000"
                             />
@@ -80,7 +80,7 @@
                             <input
                                 v-model="form.email"
                                 type="email"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.email }"
                                 placeholder="e.g., branch@example.com"
                             />
@@ -94,7 +94,7 @@
                             <input
                                 v-model="form.is_active"
                                 type="checkbox"
-                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                class="rounded border-gray-400 text-primary-600 focus:ring-primary-500"
                             />
                             <span class="text-sm font-medium text-gray-700">Active</span>
                         </label>

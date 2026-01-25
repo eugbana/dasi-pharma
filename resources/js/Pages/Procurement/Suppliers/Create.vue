@@ -21,7 +21,7 @@
                             v-model="form.name"
                             type="text"
                             required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.name }"
                         />
                         <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
@@ -32,7 +32,7 @@
                         <input
                             v-model="form.contact_person"
                             type="text"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         />
                     </div>
 
@@ -44,7 +44,7 @@
                             v-model="form.phone"
                             type="tel"
                             required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.phone }"
                         />
                         <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">{{ form.errors.phone }}</p>
@@ -55,7 +55,7 @@
                         <input
                             v-model="form.email"
                             type="email"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.email }"
                         />
                         <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
@@ -66,7 +66,7 @@
                         <textarea
                             v-model="form.address"
                             rows="3"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         ></textarea>
                     </div>
 
@@ -76,7 +76,7 @@
                             v-model="form.payment_terms"
                             type="text"
                             placeholder="e.g., Net 30 days"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         />
                     </div>
 
@@ -87,7 +87,7 @@
                             type="number"
                             min="1"
                             placeholder="e.g., 7"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         />
                     </div>
 
@@ -96,7 +96,7 @@
                             <input
                                 v-model="form.is_active"
                                 type="checkbox"
-                                class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="rounded border-gray-400 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             />
                             <span class="ml-2 text-sm text-gray-700">Active Supplier</span>
                         </label>

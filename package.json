@@ -8,25 +8,11 @@
     },
     "private": true,
     "type": "module",
-    "main": "dist/electron/main.js",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
-        "desktop:dev": "php artisan native:serve",
-        "desktop:build": "node build.cjs",
-        "desktop:build:win": "node build.cjs --win",
-        "desktop:build:mac": "node build.cjs --mac",
-        "desktop:build:linux": "node build.cjs --linux",
-        "desktop:build:all": "node build.cjs --all",
-        "desktop:install": "php artisan native:install",
-        "electron:build": "electron-builder --config build/electron-builder.yml",
-        "electron:build:win": "electron-builder --config build/electron-builder.yml --win",
-        "electron:build:mac": "electron-builder --config build/electron-builder.yml --mac",
-        "electron:build:linux": "electron-builder --config build/electron-builder.yml --linux",
-        "postinstall": "electron-builder install-app-deps"
+        "build": "vite build"
     },
     "devDependencies": {
-        "@electron/notarize": "^2.2.1",
         "@inertiajs/vue3": "^2.3.6",
         "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/postcss": "^4.1.18",
@@ -34,8 +20,6 @@
         "alpinejs": "^3.15.3",
         "autoprefixer": "^10.4.23",
         "axios": "^1.6.4",
-        "electron": "^28.1.0",
-        "electron-builder": "^24.9.1",
         "laravel-vite-plugin": "^1.0.0",
         "postcss": "^8.5.6",
         "tailwindcss": "^4.1.18",
@@ -44,12 +28,8 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
-        "electron-updater": "^6.1.7",
         "html5-qrcode": "^2.3.8",
         "lodash": "^4.17.21",
         "vue-chartjs": "^5.3.3"
-    },
-    "build": {
-        "extends": "build/electron-builder.yml"
     }
 }

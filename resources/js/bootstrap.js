@@ -1,13 +1,48 @@
 /**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
+ * Axios HTTP Library Configuration
+ *
+ * This file configures axios as the global HTTP client for the application.
+ * The configured instance is available as `window.axios` and includes:
+ * - CSRF token from the meta tag (X-CSRF-TOKEN header)
+ * - Credentials (cookies) sent with all requests
+ * - XMLHttpRequest header for Laravel to detect AJAX requests
+ *
+ * IMPORTANT: In Vue components, always use `const axios = window.axios`
+ * instead of `import axios from 'axios'`. Importing axios directly creates
+ * a new instance WITHOUT the CSRF token configuration, causing 419 errors.
+ *
+ * Example usage in Vue components:
+ * ```
+ * <script setup>
+ * const axios = window.axios;
+ *
+ * const fetchData = async () => {
+ *     const response = await axios.get('/api/data');
+ *     // ...
+ * };
+ * </script>
+ * ```
  */
 
 import axios from 'axios';
 window.axios = axios;
 
+// Required for Laravel to identify this as an AJAX request
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// Required to send session cookies with requests (needed for CSRF verification)
+window.axios.defaults.withCredentials = true;
+
+// Configure axios to use the XSRF-TOKEN cookie for CSRF protection.
+// Laravel automatically sets this cookie on each response and Axios will
+// read it for every request and send it as the X-XSRF-TOKEN header.
+//
+// This avoids relying on a single, potentially stale value from the
+// <meta name="csrf-token"> tag and keeps the header in sync with the
+// session's CSRF token, preventing intermittent 419 errors on first
+// form submissions after navigation.
+window.axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+window.axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

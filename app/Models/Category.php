@@ -41,6 +41,13 @@ class Category extends Model
                 $category->slug = Str::slug($category->name);
             }
         });
+
+        static::updating(function ($category) {
+            // Regenerate slug if name has changed
+            if ($category->isDirty('name')) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
     }
 
     /**

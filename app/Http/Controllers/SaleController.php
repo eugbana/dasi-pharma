@@ -51,9 +51,23 @@ class SaleController extends Controller
             $query->byStatus($request->status);
         }
 
-        // Date range filter
+        // Date range filter - handle both dates or individual dates
         if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->dateRange($request->date_from, $request->date_to);
+            // Both dates provided - use date range with full day coverage
+            $startDate = $request->date_from . ' 00:00:00';
+            $endDate = $request->date_to . ' 23:59:59';
+            $query->dateRange($startDate, $endDate);
+        } elseif ($request->filled('date_from')) {
+            // Only start date provided - filter from start date onwards
+            $query->where('sale_date', '>=', $request->date_from . ' 00:00:00');
+        } elseif ($request->filled('date_to')) {
+            // Only end date provided - filter up to end date
+            $query->where('sale_date', '<=', $request->date_to . ' 23:59:59');
+        }
+
+        // User filter
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         // Sorting
@@ -80,14 +94,21 @@ class SaleController extends Controller
             ];
         });
 
+        // Get users from current branch for the filter dropdown
+        $users = User::where('branch_id', $branchId)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return Inertia::render('Sales/Index', [
             'sales' => $sales,
-            'filters' => $request->only(['search', 'status', 'date_from', 'date_to']),
+            'filters' => $request->only(['search', 'status', 'date_from', 'date_to', 'user_id']),
             'statuses' => [
                 Sale::STATUS_COMPLETED => 'Completed',
                 Sale::STATUS_RETURNED => 'Returned',
                 Sale::STATUS_PARTIALLY_RETURNED => 'Partially Returned',
             ],
+            'users' => $users,
         ]);
     }
 
@@ -158,6 +179,7 @@ class SaleController extends Controller
             'customer_phone' => 'nullable|string|max:20',
             'prescription_number' => 'nullable|string|max:100',
             'discount_amount' => 'nullable|numeric|min:0',
+            'discount_authorized_by' => 'nullable|exists:users,id',
             'items' => 'required|array|min:1',
             'items.*.stock_item_id' => 'required|exists:stock_items,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -198,6 +220,33 @@ class SaleController extends Controller
             // Validate prescription if required
             if ($requiresPrescription && empty($validated['prescription_number'])) {
                 throw new \Exception('Prescription number is required for prescription-only medications.');
+            }
+
+            // Validate discount authorization if a discount is being applied
+            $discountAuthorizedBy = null;
+            $discountAmount = $validated['discount_amount'] ?? 0;
+            if ($discountAmount > 0) {
+                if (empty($validated['discount_authorized_by'])) {
+                    throw new \Exception('Discount authorization is required when applying a discount.');
+                }
+
+                // Verify the authorizing user has permission
+                $authorizer = User::with('role.permissions')->find($validated['discount_authorized_by']);
+                if (!$authorizer || !$authorizer->is_active) {
+                    throw new \Exception('Invalid discount authorization.');
+                }
+
+                $hasDiscountPermission = $authorizer->role && (
+                    in_array(strtolower($authorizer->role->name), ['super admin', 'admin', 'manager', 'pharmacist']) ||
+                    $authorizer->role->permissions->contains('name', 'sales.apply_discount') ||
+                    $authorizer->can_authorize
+                );
+
+                if (!$hasDiscountPermission) {
+                    throw new \Exception('Authorizing user does not have permission to approve discounts.');
+                }
+
+                $discountAuthorizedBy = $authorizer->id;
             }
 
             // Get VAT rate from system config
@@ -249,6 +298,7 @@ class SaleController extends Controller
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
                 'discount_amount' => $discountAmount,
+                'discount_authorized_by' => $discountAuthorizedBy,
                 'total_amount' => $totalAmount,
                 'customer_name' => $validated['customer_name'] ?? null,
                 'customer_phone' => $validated['customer_phone'] ?? null,
@@ -519,6 +569,77 @@ class SaleController extends Controller
         return response()->json([
             'success' => true,
             'sale' => $saleData,
+        ]);
+    }
+
+    /**
+     * Validate admin credentials for discount authorization.
+     * Supports both password and authorization code authentication.
+     */
+    public function validateDiscountAuth(Request $request)
+    {
+        // Determine authentication method
+        $authMethod = $request->input('auth_method', 'password');
+
+        if ($authMethod === 'code') {
+            // Authorization code method
+            $request->validate([
+                'authorization_code' => 'required|string|size:6',
+            ]);
+
+            // Find user with this authorization code who can authorize
+            $admin = User::where('authorization_code', $request->authorization_code)
+                ->where('can_authorize', true)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid authorization code.',
+                ], 401);
+            }
+        } else {
+            // Password method (default)
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
+
+            $admin = User::where('email', $request->email)->first();
+
+            if (!$admin || !Hash::check($request->password, $admin->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid admin credentials.',
+                ], 401);
+            }
+        }
+
+        // Load role with permissions
+        $admin->load('role.permissions');
+
+        // Check if user has admin role, sales.apply_discount permission, or can_authorize flag
+        $hasPermission = $admin->role && (
+            in_array(strtolower($admin->role->name), ['super admin', 'admin', 'manager', 'pharmacist']) ||
+            $admin->role->permissions->contains('name', 'sales.apply_discount') ||
+            $admin->can_authorize
+        );
+
+        if (!$hasPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not have authorization to approve discounts.',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'admin' => [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'role' => $admin->role->name,
+            ],
         ]);
     }
 

@@ -25,7 +25,7 @@
                                 ref="barcodeInput"
                                 v-model="barcodeSearch"
                                 type="text"
-                                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="flex-1 rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="Scan barcode or enter manually..."
                                 @keydown.enter.prevent="lookupBarcode"
                             />
@@ -88,7 +88,7 @@
                             </div>
                             <select
                                 v-model="selectedCategory"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 @change="handleCategoryChange"
                             >
                                 <option value="">All Categories</option>
@@ -137,7 +137,7 @@
                             </div>
                             <select
                                 v-model="selectedSubcategory"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :disabled="!selectedCategory"
                             >
                                 <option value="">All Subcategories</option>
@@ -227,7 +227,7 @@
                                     step="0.01"
                                     min="0"
                                     required
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                    class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     :class="{ 'border-red-500': form.errors.purchase_price }"
                                     placeholder="0.00"
                                     @input="calculateSellingPrice"
@@ -247,7 +247,7 @@
                                     type="number"
                                     step="0.1"
                                     min="0"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                    class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     placeholder="e.g., 25"
                                     @input="calculateSellingPrice"
                                 />
@@ -263,7 +263,7 @@
                                     step="0.01"
                                     min="0"
                                     required
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                    class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     :class="{ 'border-red-500': form.errors.selling_price }"
                                     placeholder="0.00"
                                     @input="updateMarkupFromPrice"
@@ -296,7 +296,7 @@
                                 <input
                                     v-model="form.vat_applicable"
                                     type="checkbox"
-                                    class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                    class="rounded border-gray-400 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">VAT Applicable</span>
                             </label>

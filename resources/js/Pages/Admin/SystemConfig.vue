@@ -30,7 +30,7 @@
                             <input
                                 v-model="form.receipt_business_name"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="e.g., Dasi Pharma Ltd"
                             />
                         </div>
@@ -42,7 +42,7 @@
                             <input
                                 v-model="form.receipt_header_title"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="e.g., SALES RECEIPT"
                             />
                         </div>
@@ -54,7 +54,7 @@
                             <textarea
                                 v-model="form.receipt_footer_message"
                                 rows="3"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="e.g., Thank you for your business"
                             ></textarea>
                         </div>
@@ -80,7 +80,7 @@
                                         step="0.01"
                                         min="0"
                                         max="100"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-8"
+                                        class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500 pr-8"
                                         placeholder="e.g., 7.5"
                                     />
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
@@ -95,7 +95,7 @@
                                 <input
                                     v-model="form.vat_display_text"
                                     type="text"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                    class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     placeholder="e.g., VAT"
                                 />
                                 <p class="mt-1 text-xs text-gray-500">How VAT appears on receipts</p>

@@ -43,6 +43,13 @@ class Subcategory extends Model
                 $subcategory->slug = Str::slug($subcategory->name);
             }
         });
+
+        static::updating(function ($subcategory) {
+            // Regenerate slug if name has changed
+            if ($subcategory->isDirty('name')) {
+                $subcategory->slug = Str::slug($subcategory->name);
+            }
+        });
     }
 
     /**

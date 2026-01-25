@@ -24,7 +24,7 @@
                             <input
                                 v-model="form.name"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.name }"
                             />
                             <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
@@ -37,7 +37,7 @@
                             <input
                                 v-model="form.code"
                                 type="text"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 uppercase"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500 uppercase"
                                 :class="{ 'border-red-500': form.errors.code }"
                                 maxlength="20"
                             />
@@ -53,7 +53,7 @@
                         <textarea
                             v-model="form.address"
                             rows="3"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             :class="{ 'border-red-500': form.errors.address }"
                         ></textarea>
                         <p v-if="form.errors.address" class="mt-1 text-sm text-red-600">{{ form.errors.address }}</p>
@@ -66,7 +66,7 @@
                             <input
                                 v-model="form.phone"
                                 type="tel"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.phone }"
                             />
                             <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">{{ form.errors.phone }}</p>
@@ -77,7 +77,7 @@
                             <input
                                 v-model="form.email"
                                 type="email"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                class="w-full rounded-md border-gray-400 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                 :class="{ 'border-red-500': form.errors.email }"
                             />
                             <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
@@ -90,7 +90,7 @@
                             <input
                                 v-model="form.is_active"
                                 type="checkbox"
-                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                class="rounded border-gray-400 text-primary-600 focus:ring-primary-500"
                             />
                             <span class="text-sm font-medium text-gray-700">Active</span>
                         </label>

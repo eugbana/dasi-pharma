@@ -336,7 +336,7 @@ class ReportController extends Controller
         $monthlyTrend = PurchaseOrder::where('branch_id', $branchId)
             ->whereBetween('order_date', [now()->subMonths(12), now()])
             ->selectRaw('
-                strftime("%Y-%m", order_date) as month,
+                DATE_FORMAT(order_date, "%Y-%m") as month,
                 COUNT(*) as order_count,
                 SUM(total_amount) as total_value
             ')
