@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DatabaseManagementController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\GoodsReceivedNoteController;
 use App\Http\Controllers\PermissionController;
@@ -148,6 +149,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('permission:reports.view_all|inventory.view_reports')->group(function () {
         Route::get('reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+        Route::get('reports/inventory/export', [ReportController::class, 'exportInventory'])->name('reports.inventory.export');
     });
     Route::middleware('permission:reports.view_all|procurement.view_reports')->group(function () {
         Route::get('reports/procurement', [ReportController::class, 'procurement'])->name('reports.procurement');
@@ -202,6 +204,13 @@ Route::middleware('auth')->group(function () {
 
             // Branch Management
             Route::resource('branches', BranchController::class);
+
+            // Database Management
+            Route::get('database', [DatabaseManagementController::class, 'index'])->name('database.index');
+            Route::post('database/backup', [DatabaseManagementController::class, 'backup'])->name('database.backup');
+            Route::post('database/restore', [DatabaseManagementController::class, 'restore'])->name('database.restore');
+            Route::get('database/backup/{filename}/download', [DatabaseManagementController::class, 'downloadBackup'])->name('database.backup.download');
+            Route::delete('database/backup/{filename}', [DatabaseManagementController::class, 'deleteBackup'])->name('database.backup.delete');
         });
     });
 

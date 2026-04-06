@@ -42,14 +42,22 @@
                         
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Purchase Price (₦) <span class="text-gray-500">(read-only)</span>
+                                Purchase Price (₦) <span class="text-danger-500">*</span>
                             </label>
                             <input
-                                :value="stockItem.purchase_price"
+                                v-model="form.purchase_price"
                                 type="number"
-                                disabled
-                                class="w-full rounded-md border-gray-300 bg-gray-100 shadow-sm"
+                                step="0.01"
+                                min="0"
+                                required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                :class="{ 'border-red-500': form.errors.purchase_price }"
+                                placeholder="0.00"
+                                @input="calculateSellingPrice"
                             />
+                            <p v-if="form.errors.purchase_price" class="mt-1 text-xs text-danger-600">
+                                {{ form.errors.purchase_price }}
+                            </p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -165,6 +173,7 @@ const props = defineProps({
 const markupInput = ref('');
 
 const form = useForm({
+    purchase_price: props.stockItem.purchase_price || '',
     selling_price: props.stockItem.selling_price || '',
     vat_applicable: props.stockItem.vat_applicable || false,
     minimum_stock_level: props.stockItem.minimum_stock_level || '',
@@ -184,16 +193,18 @@ onMounted(() => {
 
 // Computed
 const calculatedMarkup = computed(() => {
-    if (!props.stockItem.purchase_price || !form.selling_price) return '0.00';
-    const purchase = parseFloat(props.stockItem.purchase_price);
+    const purchasePrice = form.purchase_price || props.stockItem.purchase_price;
+    if (!purchasePrice || !form.selling_price) return '0.00';
+    const purchase = parseFloat(purchasePrice);
     const selling = parseFloat(form.selling_price);
     if (purchase === 0) return '0.00';
     return (((selling - purchase) / purchase) * 100).toFixed(2);
 });
 
 const profitPerUnit = computed(() => {
-    if (!props.stockItem.purchase_price || !form.selling_price) return '0.00';
-    const purchase = parseFloat(props.stockItem.purchase_price);
+    const purchasePrice = form.purchase_price || props.stockItem.purchase_price;
+    if (!purchasePrice || !form.selling_price) return '0.00';
+    const purchase = parseFloat(purchasePrice);
     const selling = parseFloat(form.selling_price);
     return (selling - purchase).toFixed(2);
 });
@@ -248,16 +259,18 @@ const formatDate = (date) => {
 };
 
 const calculateSellingPrice = () => {
-    if (props.stockItem.purchase_price && markupInput.value) {
-        const purchase = parseFloat(props.stockItem.purchase_price);
+    const purchasePrice = form.purchase_price || props.stockItem.purchase_price;
+    if (purchasePrice && markupInput.value) {
+        const purchase = parseFloat(purchasePrice);
         const markup = parseFloat(markupInput.value);
         form.selling_price = (purchase * (1 + markup / 100)).toFixed(2);
     }
 };
 
 const updateMarkupFromPrice = () => {
-    if (props.stockItem.purchase_price && form.selling_price) {
-        const purchase = parseFloat(props.stockItem.purchase_price);
+    const purchasePrice = form.purchase_price || props.stockItem.purchase_price;
+    if (purchasePrice && form.selling_price) {
+        const purchase = parseFloat(purchasePrice);
         const selling = parseFloat(form.selling_price);
         if (purchase > 0) {
             markupInput.value = (((selling - purchase) / purchase) * 100).toFixed(1);

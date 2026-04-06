@@ -198,6 +198,12 @@ class HandleInertiaRequests extends Middleware
                         'permission' => 'settings.manage',
                         'super_admin_only' => true,
                     ],
+                    [
+                        'name' => 'Database',
+                        'route' => 'admin.database.index',
+                        'permission' => null, // Super admin only, no specific permission needed
+                        'super_admin_only' => true,
+                    ],
                 ],
             ],
         ];

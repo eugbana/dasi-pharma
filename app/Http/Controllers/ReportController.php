@@ -214,6 +214,26 @@ class ReportController extends Controller
     {
         $branchId = $request->user()->branch_id;
 
+        $validated = $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'period' => 'nullable|in:today,week,month,year,custom',
+        ]);
+
+        // Determine date range
+        $period = $validated['period'] ?? 'month';
+
+        // For custom period, use provided dates; otherwise calculate from period
+        if ($period === 'custom' && isset($validated['start_date'])) {
+            $startDate = Carbon::parse($validated['start_date'])->startOfDay();
+            $endDate = isset($validated['end_date'])
+                ? Carbon::parse($validated['end_date'])->endOfDay()
+                : now()->endOfDay();
+        } else {
+            $startDate = $this->getStartDate($period);
+            $endDate = now()->endOfDay();
+        }
+
         // Stock value summary
         $stockValue = StockItem::where('branch_id', $branchId)
             ->selectRaw('
@@ -233,11 +253,11 @@ class ReportController extends Controller
             'expired' => StockItem::where('branch_id', $branchId)->expired()->count(),
         ];
 
-        // Stock movements summary
+        // Stock movements summary (filtered by date range)
         $movementsSummary = StockMovement::whereHas('stockItem', function ($query) use ($branchId) {
             $query->where('branch_id', $branchId);
         })
-            ->whereBetween('created_at', [now()->subDays(30), now()])
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->selectRaw('
                 movement_type,
                 COUNT(*) as count,
@@ -271,6 +291,11 @@ class ReportController extends Controller
             'stockStatus' => $stockStatus,
             'movementsSummary' => $movementsSummary,
             'lowStockItems' => $lowStockItems,
+            'filters' => [
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
+                'period' => $period,
+            ],
         ]);
     }
 
@@ -336,7 +361,7 @@ class ReportController extends Controller
         $monthlyTrend = PurchaseOrder::where('branch_id', $branchId)
             ->whereBetween('order_date', [now()->subMonths(12), now()])
             ->selectRaw('
-                DATE_FORMAT(order_date, "%Y-%m") as month,
+                strftime("%Y-%m", order_date) as month,
                 COUNT(*) as order_count,
                 SUM(total_amount) as total_value
             ')
@@ -411,6 +436,86 @@ class ReportController extends Controller
                     $sale->total_amount,
                     $paymentMethods ?: 'N/A',
                     $sale->user->name,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export inventory report to CSV.
+     */
+    public function exportInventory(Request $request)
+    {
+        $branchId = $request->user()->branch_id;
+
+        $validated = $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'period' => 'nullable|in:today,week,month,year,custom',
+        ]);
+
+        // Determine date range
+        $period = $validated['period'] ?? 'month';
+
+        // For custom period, use provided dates; otherwise calculate from period
+        if ($period === 'custom' && isset($validated['start_date'])) {
+            $startDate = Carbon::parse($validated['start_date'])->startOfDay();
+            $endDate = isset($validated['end_date'])
+                ? Carbon::parse($validated['end_date'])->endOfDay()
+                : now()->endOfDay();
+        } else {
+            $startDate = $this->getStartDate($period);
+            $endDate = now()->endOfDay();
+        }
+
+        // Build query for stock items
+        $query = StockItem::where('branch_id', $branchId)
+            ->with(['drug:id,brand_name,strength,dosage_form', 'branch:id,name']);
+
+        // Apply date range filter (by creation date)
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+
+        $stockItems = $query->orderBy('expiry_date', 'asc')->get();
+
+        $filename = 'inventory_report_' . now()->format('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function () use ($stockItems) {
+            $file = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($file, [
+                'Drug Name',
+                'Strength',
+                'Dosage Form',
+                'Batch Number',
+                'Quantity Available',
+                'Expiry Date',
+                'Branch',
+                'Current Value',
+            ]);
+
+            // Data rows
+            foreach ($stockItems as $item) {
+                $currentValue = $item->quantity_available * $item->purchase_price;
+
+                fputcsv($file, [
+                    $item->drug->brand_name ?? 'N/A',
+                    $item->drug->strength ?? '',
+                    $item->drug->dosage_form ?? '',
+                    $item->batch_number,
+                    $item->quantity_available,
+                    $item->expiry_date->format('Y-m-d'),
+                    $item->branch->name ?? 'N/A',
+                    number_format($currentValue, 2),
                 ]);
             }
 

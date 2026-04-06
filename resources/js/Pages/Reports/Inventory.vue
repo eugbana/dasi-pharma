@@ -8,6 +8,59 @@
             </p>
         </div>
 
+        <!-- Filters and Export -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Period</label>
+                    <select
+                        v-model="localFilters.period"
+                        @change="handlePeriodChange"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    >
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+
+                <div v-if="localFilters.period === 'custom'">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input
+                        v-model="localFilters.start_date"
+                        type="date"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    />
+                </div>
+
+                <div v-if="localFilters.period === 'custom'">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input
+                        v-model="localFilters.end_date"
+                        type="date"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    />
+                </div>
+
+                <div class="flex items-end" v-if="localFilters.period === 'custom'">
+                    <Button @click="applyFilters" class="w-full">
+                        Apply Filter
+                    </Button>
+                </div>
+
+                <div class="flex items-end">
+                    <Button @click="exportReport" variant="outline" class="w-full">
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export CSV
+                    </Button>
+                </div>
+            </div>
+        </div>
+
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white rounded-lg shadow p-6">
@@ -123,13 +176,30 @@
 </template>
 
 <script setup>
+import { reactive } from 'vue';
+import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Button from '@/Components/Button.vue';
 
 const props = defineProps({
     stockValue: Object,
     stockStatus: Object,
     movementsSummary: Array,
     lowStockItems: Array,
+    filters: {
+        type: Object,
+        default: () => ({
+            period: 'month',
+            start_date: null,
+            end_date: null,
+        }),
+    },
+});
+
+const localFilters = reactive({
+    period: props.filters?.period || 'month',
+    start_date: props.filters?.start_date || null,
+    end_date: props.filters?.end_date || null,
 });
 
 const formatNumber = (value) => {
@@ -137,6 +207,36 @@ const formatNumber = (value) => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
+};
+
+const handlePeriodChange = () => {
+    if (localFilters.period !== 'custom') {
+        applyFilters();
+    }
+};
+
+const applyFilters = () => {
+    router.get(route('reports.inventory'), localFilters, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const exportReport = () => {
+    const params = {
+        period: localFilters.period,
+    };
+
+    if (localFilters.period === 'custom') {
+        if (localFilters.start_date) {
+            params.start_date = localFilters.start_date;
+        }
+        if (localFilters.end_date) {
+            params.end_date = localFilters.end_date;
+        }
+    }
+
+    window.location.href = route('reports.inventory.export', params);
 };
 </script>
 

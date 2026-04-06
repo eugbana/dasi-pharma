@@ -187,7 +187,8 @@ class StockItemController extends Controller
     public function update(Request $request, StockItem $stockItem): RedirectResponse
     {
         $validated = $request->validate([
-            'selling_price' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0|gte:purchase_price',
             'vat_applicable' => 'nullable|boolean',
             'minimum_stock_level' => 'nullable|integer|min:0',
             'reorder_point' => 'nullable|integer|min:0',
