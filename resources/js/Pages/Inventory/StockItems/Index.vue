@@ -133,6 +133,16 @@
                             <div class="flex items-center justify-end gap-2">
                                 <BarcodeLabelPrint :stock-item-id="item.id" />
                                 <button
+                                    @click="addBatch(item.drug.id)"
+                                    class="text-green-600 hover:text-green-900 font-medium"
+                                    title="Quick add new batch for this drug"
+                                >
+                                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Add Batch
+                                </button>
+                                <button
                                     @click="viewItem(item.id)"
                                     class="text-primary-600 hover:text-primary-900"
                                 >
@@ -212,6 +222,10 @@ const viewItem = (id) => {
 
 const editItem = (id) => {
     router.visit(route('stock-items.edit', id));
+};
+
+const addBatch = (drugId) => {
+    router.visit(route('stock-items.create', { drug_id: drugId }));
 };
 
 const formatDate = (date) => {

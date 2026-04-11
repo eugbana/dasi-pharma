@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\BranchAware;
 use App\Models\StockItem;
+use App\Models\StockMovement;
 use App\Models\Drug;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -93,8 +95,10 @@ class StockItemController extends Controller
 
     /**
      * Show the form for creating a new stock item.
+     *
+     * Accepts optional 'drug_id' query parameter for Quick Add Batch feature.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $drugs = Drug::with(['category', 'subcategory'])
             ->active()
@@ -108,14 +112,27 @@ class StockItemController extends Controller
             }])
             ->get();
 
+        // Get pre-selected drug if drug_id is provided (Quick Add Batch)
+        $preselectedDrug = null;
+        if ($request->filled('drug_id')) {
+            $preselectedDrug = Drug::with(['category', 'subcategory'])
+                ->find($request->drug_id);
+        }
+
         return Inertia::render('Inventory/StockItems/Create', [
             'drugs' => $drugs,
             'categories' => $categories,
+            'preselectedDrug' => $preselectedDrug,
         ]);
     }
 
     /**
      * Store a newly created stock item.
+     *
+     * Quick Add Batch Feature:
+     * - If a batch with same (drug_id, branch_id, batch_number) exists:
+     *   Updates quantity_available and expiry_date, creates StockMovement
+     * - If batch does not exist: Creates new StockItem record
      */
     public function store(Request $request): RedirectResponse
     {
@@ -132,15 +149,73 @@ class StockItemController extends Controller
             'reorder_point' => 'nullable|integer|min:0',
         ]);
 
-        $validated['branch_id'] = $request->user()->branch_id;
+        $branchId = $request->user()->branch_id;
+        $validated['branch_id'] = $branchId;
         $validated['vat_applicable'] = $request->boolean('vat_applicable');
         $validated['minimum_stock_level'] = $validated['minimum_stock_level'] ?? 0;
         $validated['reorder_point'] = $validated['reorder_point'] ?? 0;
 
-        $stockItem = StockItem::create($validated);
+        DB::beginTransaction();
+        try {
+            // Check if batch already exists for this drug at this branch
+            $existingStockItem = StockItem::where('drug_id', $validated['drug_id'])
+                ->where('branch_id', $branchId)
+                ->where('batch_number', $validated['batch_number'])
+                ->first();
 
-        return redirect()->route('stock-items.index')
-            ->with('success', 'Stock item added successfully.');
+            if ($existingStockItem) {
+                // Batch exists - update quantity and expiry date
+                $quantityToAdd = $validated['quantity_available'];
+
+                // Update the existing stock item
+                $existingStockItem->update([
+                    'expiry_date' => $validated['expiry_date'],
+                    'purchase_price' => $validated['purchase_price'],
+                    'selling_price' => $validated['selling_price'],
+                ]);
+
+                // Increment quantity
+                $existingStockItem->increment('quantity_available', $quantityToAdd);
+
+                // Create stock movement for audit trail
+                StockMovement::create([
+                    'stock_item_id' => $existingStockItem->id,
+                    'user_id' => $request->user()->id,
+                    'movement_type' => StockMovement::TYPE_PURCHASE,
+                    'quantity' => $quantityToAdd,
+                    'unit_cost' => $validated['purchase_price'],
+                    'movement_date' => now()->toDateString(),
+                    'reason' => "Quick Add Batch: Added {$quantityToAdd} units to existing batch {$validated['batch_number']}",
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('stock-items.index')
+                    ->with('success', "Batch updated successfully. Added {$quantityToAdd} units to existing batch.");
+            } else {
+                // Batch does not exist - create new stock item
+                $stockItem = StockItem::create($validated);
+
+                // Create stock movement for initial stock
+                StockMovement::create([
+                    'stock_item_id' => $stockItem->id,
+                    'user_id' => $request->user()->id,
+                    'movement_type' => StockMovement::TYPE_PURCHASE,
+                    'quantity' => $validated['quantity_available'],
+                    'unit_cost' => $validated['purchase_price'],
+                    'movement_date' => now()->toDateString(),
+                    'reason' => "Initial stock: New batch {$validated['batch_number']}",
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('stock-items.index')
+                    ->with('success', 'Stock item added successfully.');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Failed to add stock item: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**

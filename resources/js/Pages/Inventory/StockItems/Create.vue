@@ -2,9 +2,18 @@
     <AppLayout>
         <!-- Page Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Add Stock Item</h1>
+            <h1 class="text-2xl font-bold text-gray-900">
+                Add Stock Item
+                <span v-if="isDrugLocked" class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Quick Add Batch
+                </span>
+            </h1>
             <p class="mt-1 text-sm text-gray-500">
-                Add a new batch of product to inventory
+                <span v-if="isDrugLocked">Adding a new batch to existing product</span>
+                <span v-else>Add a new batch of product to inventory</span>
             </p>
         </div>
 
@@ -153,8 +162,12 @@
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">
                                 Product/Drug <span class="text-danger-500">*</span>
+                                <span v-if="isDrugLocked" class="ml-2 text-xs text-green-600 font-normal">
+                                    (Quick Add Batch Mode - Drug locked)
+                                </span>
                             </label>
                             <button
+                                v-if="!isDrugLocked"
                                 type="button"
                                 @click="showNewDrugModal = true"
                                 class="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
@@ -165,15 +178,36 @@
                                 Create New Product
                             </button>
                         </div>
+
+                        <!-- Locked Drug Display -->
+                        <div v-if="isDrugLocked && selectedProduct" class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        <svg class="inline w-4 h-4 text-green-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                        </svg>
+                                        {{ selectedProduct.brand_name }}
+                                    </p>
+                                    <p class="text-xs text-gray-600 mt-1">
+                                        {{ selectedProduct.generic_name }} {{ selectedProduct.strength }}
+                                        <span v-if="selectedProduct.category"> • {{ selectedProduct.category.name }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Regular Autocomplete (not locked) -->
                         <ProductAutocomplete
+                            v-if="!isDrugLocked"
                             v-model="productSearch"
                             placeholder="Search by product name, category, or barcode..."
                             @select="handleProductSelect"
                         />
-                        <p v-if="selectedProduct" class="mt-2 text-sm text-gray-600">
+                        <p v-if="selectedProduct && !isDrugLocked" class="mt-2 text-sm text-gray-600">
                             Selected: <strong>{{ selectedProduct.brand_name }}</strong>
-                            <span v-if="selectedProduct.category"> - {{ selectedProduct.category }}</span>
-                            <span v-if="selectedProduct.subcategory"> › {{ selectedProduct.subcategory }}</span>
+                            <span v-if="selectedProduct.category"> - {{ selectedProduct.category.name }}</span>
+                            <span v-if="selectedProduct.subcategory"> › {{ selectedProduct.subcategory.name }}</span>
                             <button type="button" @click="clearSelectedProduct" class="ml-2 text-red-600 hover:text-red-700">
                                 <svg class="inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -642,12 +676,14 @@ const axios = window.axios;
 const props = defineProps({
     drugs: Array,
     categories: Array,
+    preselectedDrug: Object,
 });
 
 // Refs
 const barcodeInput = ref(null);
 const productSearch = ref('');
 const selectedProduct = ref(null);
+const isDrugLocked = ref(false);
 const selectedCategory = ref('');
 const selectedSubcategory = ref('');
 const barcodeSearch = ref('');
@@ -711,7 +747,18 @@ const form = useForm({
 // Initialize local categories and focus barcode input on mount
 onMounted(() => {
     localCategories.value = [...(props.categories || [])];
-    if (barcodeInput.value) {
+
+    // Handle preselected drug (Quick Add Batch)
+    if (props.preselectedDrug) {
+        selectedProduct.value = props.preselectedDrug;
+        form.drug_id = props.preselectedDrug.id;
+        isDrugLocked.value = true;
+
+        // Pre-populate selling price if available
+        if (props.preselectedDrug.selling_price) {
+            form.selling_price = props.preselectedDrug.selling_price;
+        }
+    } else if (barcodeInput.value) {
         barcodeInput.value.focus();
     }
 });
@@ -820,8 +867,11 @@ const handleProductSelect = (product) => {
 };
 
 const clearSelectedProduct = () => {
-    selectedProduct.value = null;
-    form.drug_id = '';
+    // Don't allow clearing if drug is locked (Quick Add Batch mode)
+    if (!isDrugLocked.value) {
+        selectedProduct.value = null;
+        form.drug_id = '';
+    }
 };
 
 const submitNewDrug = async () => {
