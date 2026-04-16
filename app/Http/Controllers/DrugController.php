@@ -121,7 +121,14 @@ class DrugController extends Controller
      */
     public function edit(Drug $product): Response
     {
-        $product->load(['category', 'subcategory']);
+        $product->load([
+            'category',
+            'subcategory',
+            'stockItems' => function ($query) {
+                $query->with('branch:id,name')
+                      ->orderBy('expiry_date');
+            }
+        ]);
 
         $categories = Category::active()
             ->ordered()
@@ -153,11 +160,46 @@ class DrugController extends Controller
             'description' => 'nullable|string|max:1000',
             'is_prescription_only' => 'boolean',
             'controlled_substance_class' => 'nullable|string|max:50',
+            'stock_items' => 'nullable|array',
+            'stock_items.*.id' => 'nullable|exists:stock_items,id',
+            'stock_items.*.batch_number' => 'required|string|max:100',
+            'stock_items.*.expiry_date' => 'required|date|after:today',
+            'stock_items.*.quantity_available' => 'required|integer|min:0',
         ]);
 
         $validated['is_prescription_only'] = $validated['is_prescription_only'] ?? false;
 
-        $product->update($validated);
+        // Update product details
+        $product->update(collect($validated)->except('stock_items')->toArray());
+
+        // Update stock items if provided
+        if (isset($validated['stock_items'])) {
+            foreach ($validated['stock_items'] as $stockItemData) {
+                if (isset($stockItemData['id'])) {
+                    // Update existing stock item
+                    $stockItem = $product->stockItems()->findOrFail($stockItemData['id']);
+
+                    // Check for batch number uniqueness (excluding current item)
+                    $duplicateBatch = $product->stockItems()
+                        ->where('branch_id', $stockItem->branch_id)
+                        ->where('batch_number', $stockItemData['batch_number'])
+                        ->where('id', '!=', $stockItem->id)
+                        ->exists();
+
+                    if ($duplicateBatch) {
+                        return back()->withErrors([
+                            'stock_items' => "Batch number {$stockItemData['batch_number']} already exists for this product at this branch."
+                        ]);
+                    }
+
+                    $stockItem->update([
+                        'batch_number' => $stockItemData['batch_number'],
+                        'expiry_date' => $stockItemData['expiry_date'],
+                        'quantity_available' => $stockItemData['quantity_available'],
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('products.index')
             ->with('success', 'Product updated successfully.');

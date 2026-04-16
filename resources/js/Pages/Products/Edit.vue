@@ -87,6 +87,60 @@
                         </div>
                     </div>
 
+                    <!-- Stock Items Section -->
+                    <div v-if="form.stock_items.length > 0" class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Stock Inventory</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch Number <span class="text-red-500">*</span></th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry Date <span class="text-red-500">*</span></th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity <span class="text-red-500">*</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr v-for="(item, index) in form.stock_items" :key="item.id">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                            {{ item.branch?.name || 'N/A' }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input
+                                                v-model="form.stock_items[index].batch_number"
+                                                type="text"
+                                                class="w-full rounded border-gray-300 focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                                required
+                                            />
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input
+                                                v-model="form.stock_items[index].expiry_date"
+                                                type="date"
+                                                class="w-full rounded border-gray-300 focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                                required
+                                            />
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input
+                                                v-model.number="form.stock_items[index].quantity_available"
+                                                type="number"
+                                                min="0"
+                                                step="1"
+                                                class="w-full rounded border-gray-300 focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                                required
+                                            />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-if="form.errors.stock_items" class="text-red-500 text-sm mt-2">{{ form.errors.stock_items }}</div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            <span class="font-semibold">Note:</span> Batch numbers must be unique per product and branch. Expiry dates must be in the future.
+                        </p>
+                    </div>
+
                     <div class="mt-6 flex justify-end space-x-3">
                         <Link :href="route('products.index')" class="btn btn-secondary">Cancel</Link>
                         <button type="submit" class="btn btn-primary" :disabled="form.processing">
@@ -120,6 +174,13 @@ const form = useForm({
     manufacturer: props.product.manufacturer || '',
     description: props.product.description || '',
     is_prescription_only: props.product.is_prescription_only || false,
+    stock_items: (props.product.stock_items || []).map(item => ({
+        id: item.id,
+        batch_number: item.batch_number,
+        expiry_date: item.expiry_date,
+        quantity_available: item.quantity_available,
+        branch: item.branch,
+    })),
 });
 
 const subcategories = computed(() => {
