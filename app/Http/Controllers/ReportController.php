@@ -148,7 +148,7 @@ class ReportController extends Controller
                     'customer_name' => $sale->customer_name ?? 'Walk-in',
                     'total_amount' => $sale->total_amount,
                     'status' => $sale->status,
-                    'cashier' => $sale->user->name ?? 'N/A',
+                    'cashier' => $sale->user?->name ?? 'N/A',
                     'items_count' => $sale->items->count(),
                     'payment_methods' => $sale->payments->pluck('payment_method')->unique()->values(),
                     'has_returns' => $hasReturns,

@@ -89,7 +89,7 @@ class SaleController extends Controller
                 'status' => $sale->status,
                 'items_count' => $sale->items->count(),
                 'payment_methods' => $sale->payments->pluck('payment_method')->unique()->values(),
-                'user' => $sale->user->name,
+                'user' => $sale->user?->name ?? 'Unknown User',
                 'has_prescription' => $sale->hasPrescription(),
             ];
         });
@@ -536,7 +536,7 @@ class SaleController extends Controller
             'discount_amount' => floatval($sale->discount_amount),
             'total_amount' => floatval($sale->total_amount),
             'status' => $sale->status,
-            'cashier' => $sale->user->name,
+            'cashier' => $sale->user?->name ?? 'Unknown User',
             'can_be_returned' => $sale->canBeReturned(),
             'returnable_amount' => $sale->returnable_amount,
             'items' => $sale->items->map(function ($item) {

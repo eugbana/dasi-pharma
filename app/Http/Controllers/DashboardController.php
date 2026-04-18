@@ -63,7 +63,7 @@ class DashboardController extends Controller
                     'customer_name' => $sale->customer_name,
                     'total_amount' => $sale->total_amount,
                     'sale_date' => $sale->sale_date->format('Y-m-d H:i'),
-                    'user' => $sale->user->name,
+                    'user' => $sale->user?->name ?? 'Unknown User',
                     'items_count' => $sale->items->count(),
                 ];
             });
