@@ -7,6 +7,7 @@ use App\Models\StockItem;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -186,7 +187,12 @@ class ProductController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'strength' => 'nullable|string|max:100',
             'dosage_form' => 'nullable|string|max:100',
-            'barcode' => 'nullable|string|max:50|unique:drugs,barcode',
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('drugs')->whereNull('deleted_at'),
+            ],
             'manufacturer' => 'nullable|string|max:255',
             'is_prescription_only' => 'boolean',
         ]);

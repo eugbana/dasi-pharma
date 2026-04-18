@@ -6,6 +6,7 @@ use App\Models\Drug;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -85,7 +86,12 @@ class DrugController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'strength' => 'nullable|string|max:100',
             'dosage_form' => 'nullable|string|max:100',
-            'barcode' => 'nullable|string|max:50|unique:drugs,barcode',
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('drugs')->whereNull('deleted_at'),
+            ],
             'manufacturer' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'is_prescription_only' => 'boolean',
@@ -155,7 +161,12 @@ class DrugController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'strength' => 'nullable|string|max:100',
             'dosage_form' => 'nullable|string|max:100',
-            'barcode' => 'nullable|string|max:50|unique:drugs,barcode,' . $product->id,
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('drugs')->ignore($product->id)->whereNull('deleted_at'),
+            ],
             'manufacturer' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'is_prescription_only' => 'boolean',
