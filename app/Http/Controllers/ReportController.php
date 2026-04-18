@@ -276,9 +276,9 @@ class ReportController extends Controller
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'drug_name' => $item->drug->brand_name,
-                    'strength' => $item->drug->strength,
-                    'dosage_form' => $item->drug->dosage_form,
+                    'drug_name' => $item->drug?->brand_name ?? 'Deleted Product',
+                    'strength' => $item->drug?->strength ?? 'N/A',
+                    'dosage_form' => $item->drug?->dosage_form ?? 'N/A',
                     'batch_number' => $item->batch_number,
                     'quantity_available' => $item->quantity_available,
                     'reorder_point' => $item->reorder_point,

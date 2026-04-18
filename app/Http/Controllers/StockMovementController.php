@@ -85,10 +85,11 @@ class StockMovementController extends Controller
         }
 
         $stockItems = $query->get()->map(function ($item) {
+            $drugName = $item->drug?->brand_name ?? 'Deleted Product';
             return [
                 'id' => $item->id,
-                'label' => "{$item->drug->brand_name} - Batch: {$item->batch_number} (Qty: {$item->quantity_available})" . ($item->branch ? " [{$item->branch->code}]" : ''),
-                'drug_name' => $item->drug->brand_name,
+                'label' => "{$drugName} - Batch: {$item->batch_number} (Qty: {$item->quantity_available})" . ($item->branch ? " [{$item->branch->code}]" : ''),
+                'drug_name' => $drugName,
                 'batch_number' => $item->batch_number,
                 'current_quantity' => $item->quantity_available,
                 'branch_id' => $item->branch_id,

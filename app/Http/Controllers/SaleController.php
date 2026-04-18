@@ -132,18 +132,18 @@ class SaleController extends Controller
                 return [
                     'id' => $item->id,
                     'drug_id' => $item->drug_id,
-                    'drug_name' => $item->drug->name,
-                    'generic_name' => $item->drug->generic_name,
-                    'strength' => $item->drug->strength,
-                    'dosage_form' => $item->drug->dosage_form,
+                    'drug_name' => $item->drug?->name ?? 'Deleted Product',
+                    'generic_name' => $item->drug?->generic_name ?? 'N/A',
+                    'strength' => $item->drug?->strength ?? 'N/A',
+                    'dosage_form' => $item->drug?->dosage_form ?? 'N/A',
                     'batch_number' => $item->batch_number,
                     'expiry_date' => $item->expiry_date->format('Y-m-d'),
                     'quantity_available' => $item->quantity_available,
                     'selling_price' => $item->selling_price,
                     'vat_applicable' => $item->vat_applicable,
-                    'is_prescription_only' => $item->drug->is_prescription_only,
-                    'controlled_substance_class' => $item->drug->controlled_substance_class,
-                    'requires_prescription' => $item->drug->requiresPrescription(),
+                    'is_prescription_only' => $item->drug?->is_prescription_only ?? false,
+                    'controlled_substance_class' => $item->drug?->controlled_substance_class ?? null,
+                    'requires_prescription' => $item->drug?->requiresPrescription() ?? false,
                 ];
             });
 

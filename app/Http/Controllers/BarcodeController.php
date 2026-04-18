@@ -139,6 +139,13 @@ class BarcodeController extends Controller
     {
         $stockItem->load('drug:id,brand_name,strength,dosage_form,barcode');
 
+        // Handle case where drug has been deleted
+        if (!$stockItem->drug) {
+            return response()->json([
+                'error' => 'The product associated with this stock item has been deleted.',
+            ], 404);
+        }
+
         $generator = new BarcodeGeneratorPNG();
         $barcodeValue = $stockItem->drug->barcode ?? $this->generateBarcodeValue($stockItem->drug);
         $barcodeImage = base64_encode($generator->getBarcode($barcodeValue, $generator::TYPE_CODE_128));

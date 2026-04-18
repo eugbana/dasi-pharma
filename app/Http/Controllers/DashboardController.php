@@ -78,9 +78,9 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'drug_name' => $item->drug->brand_name,
-                    'strength' => $item->drug->strength,
-                    'dosage_form' => $item->drug->dosage_form,
+                    'drug_name' => $item->drug?->brand_name ?? 'Deleted Product',
+                    'strength' => $item->drug?->strength ?? 'N/A',
+                    'dosage_form' => $item->drug?->dosage_form ?? 'N/A',
                     'batch_number' => $item->batch_number,
                     'expiry_date' => $item->expiry_date->format('Y-m-d'),
                     'days_until_expiry' => $item->days_until_expiry,

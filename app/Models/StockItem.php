@@ -47,6 +47,10 @@ class StockItem extends Model
 
     /**
      * Get the drug for this stock item.
+     *
+     * NOTE: If you need to display stock items with deleted drugs,
+     * use ->with(['drug' => function($query) { $query->withTrashed(); }])
+     * or ensure your views handle null drug relationships gracefully.
      */
     public function drug(): BelongsTo
     {
