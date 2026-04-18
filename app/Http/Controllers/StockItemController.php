@@ -24,7 +24,8 @@ class StockItemController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = StockItem::with(['drug', 'branch']);
+        $query = StockItem::with(['drug', 'branch'])
+            ->whereHas('drug'); // Only include stock items with active (non-deleted) drugs
 
         // Apply branch filter (Super Admin sees all or selected branch, others see their branch)
         $this->applyBranchFilter($query, $request);
