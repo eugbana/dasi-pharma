@@ -394,10 +394,19 @@ class ReportController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
+        $startDate = Carbon::parse($validated['start_date'])->startOfDay();
+        $endDate = Carbon::parse($validated['end_date'])->endOfDay();
+
         $sales = Sale::where('branch_id', $branchId)
-            ->with(['user:id,name', 'items.drug:id,brand_name,strength', 'payments'])
-            ->whereBetween('sale_date', [$validated['start_date'], $validated['end_date']])
-            ->completed()
+            ->with([
+                'user:id,name',
+                'items.drug' => function ($query) {
+                    $query->withTrashed()->select('id', 'brand_name', 'strength', 'dosage_form');
+                },
+                'payments',
+            ])
+            ->whereBetween('sale_date', [$startDate, $endDate])
+            ->whereIn('status', ['completed', 'partially_returned', 'returned'])
             ->orderBy('sale_date', 'desc')
             ->get();
 
@@ -416,6 +425,7 @@ class ReportController extends Controller
                 'Sale Number',
                 'Date',
                 'Customer',
+                'Product Names',
                 'Items',
                 'Total Amount',
                 'Payment Methods',
@@ -428,14 +438,27 @@ class ReportController extends Controller
                     return ucfirst($method);
                 })->join(', ');
 
+                $productNames = $sale->items->map(function ($item) {
+                    if (!$item->drug) {
+                        return 'N/A';
+                    }
+
+                    return trim(collect([
+                        $item->drug->brand_name,
+                        $item->drug->strength,
+                        $item->drug->dosage_form ? "({$item->drug->dosage_form})" : null,
+                    ])->filter()->join(' '));
+                })->filter()->unique()->join(', ');
+
                 fputcsv($file, [
                     $sale->sale_number,
                     $sale->sale_date->format('Y-m-d H:i'),
                     $sale->customer_name ?? 'Walk-in',
+                    $productNames ?: 'N/A',
                     $sale->items->count(),
                     $sale->total_amount,
                     $paymentMethods ?: 'N/A',
-                    $sale->user->name,
+                    $sale->user?->name ?? 'N/A',
                 ]);
             }
 
@@ -606,5 +629,3 @@ class ReportController extends Controller
         };
     }
 }
-
-
